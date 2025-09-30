@@ -6,4 +6,6 @@ export const connection = knex({
     filename: './data/db.sqlite3',
   },
   useNullAsDefault: true,
+
+  
 });

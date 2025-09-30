@@ -1,4 +1,5 @@
 import {
+  countJobs,
   createJob,
   deleteJob,
   getJob,
@@ -25,7 +26,11 @@ export const resolvers = {
       }
       return job;
     },
-    jobs: () => getJobs(),
+    jobs: async (_root, { limit, offset }) => {
+      const items = await getJobs(limit, offset);
+      const totalCount = await countJobs();
+      return { items, totalCount };
+    },
   },
   Mutation: {
     createJob: (_root, { input: { title, description } }, { user }) => {
@@ -72,7 +77,8 @@ export const resolvers = {
     jobs: (company) => getJobsByCompany(company.id),
   },
   Job: {
-    company: (job) => getCompany(job.companyId),
+    company: (job, _args, { companyLoader }) =>
+      companyLoader.load(job.companyId),
     date: (job) => toIsoDate(job.createdAt),
   },
 };
@@ -88,5 +94,6 @@ function unauthorizedError(message) {
   });
 }
 function toIsoDate(value) {
-  return value.slice(0, "yyy-mm-dd".length);
+  const date = new Date(value);
+  return date.toISOString().slice(0, 10);
 }
