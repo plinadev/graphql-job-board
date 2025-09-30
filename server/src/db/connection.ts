@@ -6,6 +6,9 @@ export const connection = knex({
     filename: './data/db.sqlite3',
   },
   useNullAsDefault: true,
+});
 
-  
+connection.on('query', ({ sql, bindings }) => {
+  const query = connection.raw(sql, bindings).toQuery();
+  console.log('[db]', query);
 });
